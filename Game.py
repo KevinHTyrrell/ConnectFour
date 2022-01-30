@@ -68,6 +68,8 @@ class Game:
             insert_col_int = int(insert_col)
             return insert_col_int
         else:
+            print('INVALID MOVE')
+            input()
             return None
 
     def _validate_input(self, user_input):
@@ -88,7 +90,6 @@ class Game:
             self._grid.print()
             col_to_insert = self._get_player_input(player)
             if col_to_insert is None:
-                print('INVALID MOVE')
                 continue
             self._grid.insert_piece(piece=player, col=col_to_insert)
             n_iterations += 1
