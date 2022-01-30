@@ -13,6 +13,8 @@ class Grid:
         return grid_reshaped
 
     def print(self):
+        print('\n\n\n\n  0  1  2  3  4  5  6')
+        print('------------------------')
         print(self._grid[::-1])
 
     def insert_piece(self, piece: int, col: int):
@@ -20,6 +22,12 @@ class Grid:
         for row in range(selected_column.__len__()):
             if selected_column[row] == 0:
                 selected_column[row] = piece
+                break
+
+    def check_valid_move(self, col: int):
+        selected_column = self._grid[:, col]
+        for row in range(selected_column.__len__()):
+            if selected_column[row] == 0:
                 return True
         return False
 
