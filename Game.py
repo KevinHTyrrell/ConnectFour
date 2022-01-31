@@ -60,6 +60,63 @@ class Game:
     def _end_game(self):
         self._run_game = False
 
+    def _get_max(self, player):
+        row_max = self._get_rows_max(player)
+        col_max = self._get_cols_max(player)
+        diag_max = self._get_diag_max(player)
+        return np.max([row_max, col_max, diag_max])
+
+    def _get_arr_max(self, player, selected_arr):
+        global_max = 0
+        max_length = 0
+        split_idx = np.where(np.diff(selected_arr) != 0)[0] + 1
+        split_row = np.split(selected_arr, split_idx)
+        for chunk_idx in range(len(split_row)):
+            chunk = split_row[chunk_idx]
+            if player in chunk and len(chunk) > global_max:
+                if chunk_idx == 0:
+                    if split_row[chunk_idx+1][0] == 0:
+                        max_length = len(chunk)
+                elif chunk_idx == len(split_row) - 1:
+                    if split_row[chunk_idx-1][-1] == 0:
+                        max_length = len(chunk)
+                else:
+                    if split_row[chunk_idx + 1][0] == 0 or split_row[chunk_idx-1][-1] == 0:
+                        max_length = len(chunk)
+                if max_length > global_max:
+                    global_max = max_length
+        return global_max
+
+    def _get_cols_max(self, player: int):
+        global_max = -1
+        n_cols = self._grid.get_width()
+        for col in range(n_cols):
+            selected_col = self._grid.get_grid()[:, col]
+            row_max = self._get_arr_max(player, selected_col)
+            if row_max > global_max:
+                global_max = row_max
+        return global_max
+
+    def _get_diag_max(self, player: int):
+        global_max = -1
+        for row in range(self._grid.get_height() - self._connection):
+            for col in range(self._grid.get_width() - self._connection):
+                selected_grid = self._grid.get_grid()[row:(row+self._connection), col:(col+self._connection)]
+                diag_max = np.max([self._get_arr_max(player, np.diag(grd)) for grd in [selected_grid, selected_grid[:, ::-1]]])
+                if diag_max > global_max:
+                    global_max = diag_max
+        return global_max
+
+    def _get_rows_max(self, player: int):
+        global_max = -1
+        n_rows = self._grid.get_height()
+        for row in range(n_rows):
+            selected_row = self._grid.get_grid()[row, :]
+            row_max = self._get_arr_max(player, selected_row)
+            if row_max > global_max:
+                global_max = row_max
+        return global_max
+
     def _get_player_input(self, player: int):
         print(f'Player {player} enter column?:', end='', flush=True)
         insert_col = input()
@@ -92,8 +149,13 @@ class Game:
             if col_to_insert is None:
                 continue
             self._grid.insert_piece(piece=player, col=col_to_insert)
+            print(f'reward: {self.calc_reward(player)}')
             n_iterations += 1
             is_win = self._check_win()
             if is_win:
                 print(f'\n\n\n\n\n\n\nPLAYER {player} WINS')
                 self._end_game()
+
+    def calc_reward(self, player: int):
+        player_reward = self._get_max(player)
+        return player_reward
