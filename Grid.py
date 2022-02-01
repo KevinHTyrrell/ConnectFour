@@ -40,3 +40,6 @@ class Grid:
 
     def get_grid(self):
         return self._grid
+
+    def get_grid_shape(self):
+        return *self._grid.shape, 1
