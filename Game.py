@@ -1,5 +1,6 @@
 import collections
 import numpy as np
+from Bots.BaseBot import BaseBot
 from Grid import Grid
 
 
@@ -7,9 +8,22 @@ class Game:
     def __init__(self):
         self._player_one    = 1
         self._player_two    = 2
+        self._player_dict   = dict()
         self._connection    = 4
         self._grid          = Grid()
         self._run_game      = True
+        self._initialize_players()
+
+    def reset(self):
+        self._grid = Grid()
+        self._run_game = True
+
+    def _initialize_players(self):
+        self._player_dict[1] = None
+        self._player_dict[2] = None
+
+    def insert_bot(self, player, bot: BaseBot):
+        self._player_dict[player] = bot
 
     def _check_arr(self, selected_arr):
         piece_count_dict = collections.Counter(selected_arr)
@@ -143,19 +157,31 @@ class Game:
     def run_game(self):
         n_iterations = 0
         while self._run_game:
-            player = (n_iterations % 2) + 1
+            n_player = (n_iterations % 2) + 1
+            player = self._player_dict.get(n_player)
             self._grid.print()
-            col_to_insert = self._get_player_input(player)
-            if col_to_insert is None:
-                continue
-            self._grid.insert_piece(piece=player, col=col_to_insert)
-            print(f'reward: {self.calc_reward(player)}')
+            if player is None:
+                col_to_insert = self._get_player_input(n_player)
+                if col_to_insert is None:
+                    continue
+                self._grid.insert_piece(piece=n_player, col=col_to_insert)
+            else:
+                # get bot action, insert piece #
+                initial_state = self._grid.get_grid().copy()
+                col_to_insert = player.get_action(initial_state)
+                self._grid.insert_piece(piece=n_player, col=col_to_insert)
+                result_state = self._grid.get_grid().copy()
+                reward = self.calc_reward(n_player)
+                player.store_memory(initial_state, col_to_insert, result_state, reward)
             n_iterations += 1
             is_win = self._check_win()
             if is_win:
-                print(f'\n\n\n\n\n\n\nPLAYER {player} WINS')
+                print(f'\n\n\n\n\n\n\nPLAYER {n_player} WINS')
                 self._end_game()
 
     def calc_reward(self, player: int):
         player_reward = self._get_max(player)
         return player_reward
+
+    def get_grid_dims(self):
+        return self._grid.get_grid().shape
