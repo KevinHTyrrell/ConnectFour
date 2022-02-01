@@ -89,7 +89,7 @@ class Game:
             chunk = split_row[chunk_idx]
             if player in chunk and len(chunk) > global_max:
                 if chunk_idx == 0:
-                    if split_row[chunk_idx+1][0] == 0:
+                    if split_row.__len__() > 1 and split_row[chunk_idx+1][0] == 0:
                         max_length = len(chunk)
                 elif chunk_idx == len(split_row) - 1:
                     if split_row[chunk_idx-1][-1] == 0:
