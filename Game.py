@@ -171,8 +171,8 @@ class Game:
                 col_to_insert = player.get_action(initial_state)
                 self._grid.insert_piece(piece=n_player, col=col_to_insert)
                 result_state = self._grid.get_grid().copy()
-                reward = self.calc_reward(n_player)
-                player.store_memory(initial_state, col_to_insert, result_state, reward)
+                self_reward, opp_reward = self.calc_reward(n_player)
+                player.store_memory(initial_state, col_to_insert, result_state, self_reward, opp_reward)
             n_iterations += 1
             is_win = self._check_win()
             if is_win:
@@ -181,11 +181,8 @@ class Game:
                 self._end_game()
 
     def calc_reward(self, player: int):
-        off_coeff = 1
-        def_coeff = 1
         opp_player = (player % 2) + 1
-        player_reward = off_coeff * self._get_max(player) - def_coeff * self._get_max(opp_player)
-        return player_reward
+        return self._get_max(player), self._get_max(opp_player)
 
     def get_grid_dims(self):
         return self._grid.get_grid_shape()
