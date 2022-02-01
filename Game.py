@@ -177,6 +177,7 @@ class Game:
             is_win = self._check_win()
             if is_win:
                 print(f'\n\n\n\n\n\n\nPLAYER {n_player} WINS')
+                self._grid.print()
                 self._end_game()
 
     def calc_reward(self, player: int):
