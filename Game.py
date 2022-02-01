@@ -181,7 +181,10 @@ class Game:
                 self._end_game()
 
     def calc_reward(self, player: int):
-        player_reward = self._get_max(player)
+        off_coeff = 1
+        def_coeff = 1
+        opp_player = (player % 2) + 1
+        player_reward = off_coeff * self._get_max(player) - def_coeff * self._get_max(opp_player)
         return player_reward
 
     def get_grid_dims(self):
