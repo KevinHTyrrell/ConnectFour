@@ -79,7 +79,6 @@ class BaseBot:
         sample_memory = choices(self._memory, k=self._train_sample_size)
 
         for initial_state, action, next_state, reward in sample_memory:
-            # current_rewards = self._model.predict(np.expand_dims(initial_state, axis=0))
             current_rewards = self._model.predict(initial_state).squeeze()
             q_val = self._get_q_value(initial_state, action, reward, next_state)
             current_rewards[action] = q_val
@@ -91,8 +90,6 @@ class BaseBot:
         self._model.fit(train_x, train_y, batch_size=self._batch_size, epochs=self._epochs)
 
     def _get_q_value(self, initial_state, action, reward, next_state):
-        # initial_state_predictions = self._model.predict(np.expand_dims(initial_state, axis=0))
-        # next_state_predictions = self._model.predict(np.expand_dims(next_state, axis=0))
         initial_state_predictions = self._model.predict(initial_state).squeeze()
         next_state_predictions = self._model.predict(next_state).squeeze()
         initial_q_max = initial_state_predictions[action]
