@@ -10,6 +10,8 @@ class BaseBot:
         self._action_space_size     = 7
         self._alpha                 = 0.005  # learning rate
         self._batch_size            = 32
+        self._coeff_off             = 1
+        self._coeff_def             = 1
         self._epochs                = 10
         self._epsilon               = 1.0
         self._epsilon_decay         = 0.99
@@ -35,7 +37,8 @@ class BaseBot:
             self._train()
         return insert_col
 
-    def store_memory(self, initial_state, column, next_state, reward):
+    def store_memory(self, initial_state, column, next_state, self_reward, opp_reward):
+        reward = self._calc_reward(self_reward, opp_reward)
         initial_state = np.expand_dims(initial_state, axis=(0, -1))
         next_state = np.expand_dims(next_state, axis=(0, -1))
         self._memory.append((initial_state, column, next_state, reward))
@@ -97,3 +100,6 @@ class BaseBot:
         q_current = (1 - self._alpha) * initial_q_max
         q_future = self._alpha * (reward * self._gamma * next_q_max)
         return q_current + q_future
+
+    def _calc_reward(self, self_reward, opp_reward):
+        return self._coeff_off * self_reward - self._coeff_def * opp_reward
