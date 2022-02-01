@@ -184,4 +184,4 @@ class Game:
         return player_reward
 
     def get_grid_dims(self):
-        return self._grid.get_grid().shape
+        return self._grid.get_grid_shape()
