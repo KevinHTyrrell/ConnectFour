@@ -10,6 +10,7 @@ class BaseBot:
         self._action_space_size     = 7
         self._alpha                 = 0.005  # learning rate
         self._batch_size            = 32
+        self._epochs                = 10
         self._epsilon               = 1.0
         self._epsilon_decay         = 0.99
         self._epsilon_limit         = 0.2
@@ -84,7 +85,7 @@ class BaseBot:
             train_y_list.append(current_rewards)
         train_x = np.concatenate(train_x_list, axis=0)
         train_y = np.concatenate(train_y_list, axis=0)
-        self._model.fit(train_x, train_y, batch_size=self._batch_size)
+        self._model.fit(train_x, train_y, batch_size=self._batch_size, epochs=self._epochs)
 
     def _get_q_value(self, initial_state, action, reward, next_state):
         # initial_state_predictions = self._model.predict(np.expand_dims(initial_state, axis=0))
